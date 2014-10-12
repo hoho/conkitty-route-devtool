@@ -249,10 +249,10 @@
             for (i = 0; i < frames.length; i++) {
                 frame = frames[i];
 
-                if (frame._data && (typeof frame._data.reject === 'function')) {
-                    status = 'loading';
-                } else if (frame._dataError) {
+                if (frame._dataError) {
                     status = 'error';
+                } else if (frame._data && (typeof frame._data.reject === 'function')) {
+                    status = 'loading';
                 } else if (frame._data !== undefined) {
                     status = 'ok';
                 } else {
