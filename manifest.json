@@ -1,5 +1,5 @@
 {
-    "name": "Chrome Developer Tools Plugin for Conkitty Route",
+    "name": "Developer Tools Plugin for Conkitty Route",
     "version": "0.0.1",
     "description": "Debug routing tree of Conkitty Route",
     "devtools_page": "conkitty-route.html",
