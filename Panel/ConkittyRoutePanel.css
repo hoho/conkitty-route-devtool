@@ -81,8 +81,8 @@ body {
 
 
 .b-frame_loading > .b-frame__contents .b-frame__status {
-    -webkit-animation: spin 2s infinite linear;
-    animation: spin 2s infinite linear;
+    -webkit-animation: spin 3s infinite linear;
+    animation: spin 3s infinite linear;
 }
 
 
@@ -111,6 +111,8 @@ body {
     color: #aaa;
 
     display: block;
+
+    margin-top: 0;
 }
 
 
