@@ -1,0 +1,43 @@
+frame $frame $currentFrameId $marginLeft=(18)
+    &"frame.css"
+
+    div.b-frame:if(($frame.active), .b-frame_active[frame-id=($frame._id)]:if(($frame._id === $currentFrameId), .b-frame_chosen)):if(($frame.uri === null), .b-frame_not-found)
+        div.b-frame__contents[style=('margin-left: ' + $marginLeft + 'px')]
+            div.b-frame__status:if(($frame.active && $frame.status === 'loading'), .b-frame__status_spin)
+                CHOOSE
+                    WHEN ($frame.active && $frame.status === 'loading')
+                        div.b-frame__loading
+                            "⚙"
+                    WHEN ($frame.active && $frame.status === 'ok')
+                        div.b-frame__ok
+                            "✓"
+                    WHEN ($frame.active && $frame.status === 'error')
+                        div.b-frame__error
+                            "✗"
+                    WHEN (!$frame.active)
+                        div.b-frame__inactive
+                            "◦"
+            div.b-frame__uri
+                ($frame.uri === null ? 'not found' : ($frame.uri || '/'))
+
+            div.b-frame__settings
+                TEST ($frame.break)
+                    div.b-frame__break
+                        "break"
+                TEST ($frame.keep === false)
+                    div.b-frame__no-keep
+                        "no keep"
+                TEST ($frame.wait)
+                    div.b-frame__wait
+                        "wait"
+                TEST ($frame.final === false)
+                    div.b-frame__no-final
+                        "no final"
+
+    SET $ret ($frame.active && $frame._id === $currentFrameId ? $frame : null)
+
+    EACH $f ($frame.children)
+        CALL frame $f $currentFrameId ($marginLeft + 20) AS $active
+        SET $ret ($ret || $active)
+
+    EXPOSE $ret

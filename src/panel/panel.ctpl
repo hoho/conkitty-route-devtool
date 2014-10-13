@@ -1,0 +1,6 @@
+panel $frames $currentFrameId
+    &"panel.css"
+    &"panel.js"
+
+    CALL frames $frames $currentFrameId AS $active
+    CALL details $active

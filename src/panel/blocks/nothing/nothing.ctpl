@@ -1,0 +1,5 @@
+nothing $message="No Conkitty Routes"
+    &"nothing.css"
+    div.b-nothing
+        div
+            $message

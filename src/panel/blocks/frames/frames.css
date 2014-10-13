@@ -1,0 +1,15 @@
+.b-frames {
+    float: left;
+
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+
+    font-size: 11px;
+
+    height: 100%;
+
+    line-height: 170%;
+
+    overflow: auto;
+
+    width: 50%;
+}

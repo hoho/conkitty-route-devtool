@@ -1,0 +1,9 @@
+frames $frames $currentFrameId
+    &"frames.css"
+
+    div.b-frames AS $node
+        EACH $frame $frames
+            CALL frame $frame $currentFrameId AS $active
+            TEST $active
+                SET $ret $active
+    EXPOSE $ret

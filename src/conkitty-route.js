@@ -1,10 +1,13 @@
 (function() {
+    'use strict';
+
     var panelWindow;
 
+    /* global chrome */
     chrome.devtools.panels.create(
         'Conkitty Route',
         null, // No icon path
-        'Panel/ConkittyRoutePanel.html',
+        'conkitty-panel.html',
         function(panel) {
             panel.onShown.addListener(function(pw) {
                 panelWindow = pw;

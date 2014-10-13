@@ -1,0 +1,25 @@
+details $frame
+    &"details.css"
+
+    div.b-details
+        CHOOSE
+            WHEN $frame
+                CALL details__details $frame
+            OTHERWISE
+                CALL nothing message="Choose active frame for the details"
+
+
+details__details $frame
+    div.b-details__details
+        h3
+            "Parameters"
+        div.b-details__params
+            (JSON.stringify($frame.params, undefined, 4))
+        h3
+            "Data"
+        div.b-details__data
+            (JSON.stringify($frame.data, undefined, 4))
+        h3
+            "DOM"
+        div.b-details__dom
+            //(JSON.stringify($frame.params, undefined, 4))
