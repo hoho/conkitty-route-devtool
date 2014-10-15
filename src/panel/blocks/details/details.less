@@ -1,0 +1,171 @@
+@import "../variables.less";
+
+.b-details {
+    border-left: 1px solid @details-border;
+
+    height: 100%;
+
+    float: left;
+
+    overflow: auto;
+
+    position: relative;
+
+    width: 50%;
+
+
+    &__details {
+        line-height: 120%;
+    }
+
+
+    h3 {
+        background: @details-section-title-bg;
+
+        border-bottom: 1px solid @details-border;
+        border-top: 1px solid @details-border;
+
+        font-size: 13px;
+
+        font-weight: normal;
+
+        margin: 0;
+
+        padding: 0 8px;
+
+        &:first-child {
+            border-top: none;
+        }
+    }
+
+
+    &__data {
+        font-family: @font-monospace;
+
+        font-size: @font-size-monospace;
+
+        padding: 4px 8px;
+
+        label {
+            border-top: 1px solid lighten(@details-border, 20%);
+
+            cursor: pointer;
+
+            display: block;
+        }
+
+        div:first-child label {
+            border: none;
+        }
+
+        label:before {
+            color: @details-opener;
+
+            content: '▶ ';
+
+            display: inline-block;
+
+            padding: 0 0 0 1px;
+
+            width: 11px;
+        }
+
+        .b-details__data-content {
+            padding-left: 12px;
+        }
+
+        input {
+            height: 1px;
+
+            position: absolute;
+
+            visibility: hidden;
+
+            width: 1px;
+        }
+
+        input ~ .b-details__data-content {
+            display: none;
+        }
+
+        input:checked ~ .b-details__data-content {
+            display: block;
+        }
+
+        input:checked ~ label:before {
+            content: '▼ ';
+        }
+    }
+
+
+    &__waiting {
+        color: @status-loading;
+
+        text-align: center;
+    }
+
+
+    &__error {
+        color: @status-error;
+
+        text-align: center;
+    }
+
+    &__type-string {
+        color: green;
+    }
+
+    &__type-number {
+        color: #000080;
+    }
+
+    &__type-boolean {
+        color: #000080;
+    }
+
+    &__type-null {
+        color: dimgray;
+
+        font-weight: bold;
+    }
+
+    &__type-empty {
+        color: dimgray;
+    }
+
+    &__value {
+        margin: 0;
+
+        overflow: hidden;
+    }
+
+    &__value dt {
+        color: darkmagenta;
+
+        overflow: hidden;
+
+        margin: 0;
+    }
+
+    &__value dd {
+        overflow: hidden;
+
+        margin: 0 0 0 12px;
+    }
+
+    &__value_primitive {
+        dt,
+        dd
+        {
+            float: left;
+        }
+
+        dd {
+            margin: 0;
+        }
+    }
+
+    &__value_primitive > dd > &__data-content {
+        padding-left: 8px;
+    }
+}

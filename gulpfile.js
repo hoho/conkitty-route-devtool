@@ -6,9 +6,9 @@ var eslint = require('gulp-eslint');
 var concat = require('gulp-concat');
 var filter = require('gulp-filter');
 var conkitty = require('gulp-conkitty');
+var less = require('gulp-less');
 
 var del = require('del');
-//var fs = require('fs');
 
 
 var BUILD_DIR = 'conkitty-route-devtool';
@@ -38,7 +38,7 @@ gulp.task('eslint', function() {
 
 
 gulp.task('panel', function() {
-    var cssFilter = filter('**/*.css');
+    var lessFilter = filter('**/*.less');
     var jsFilter = filter('**/*.js');
 
     return gulp.src(['src/**/*.ctpl'])
@@ -50,9 +50,10 @@ gulp.task('panel', function() {
         .pipe(jsFilter)
         .pipe(concat('conkitty-panel.js'))
         .pipe(jsFilter.restore())
-        .pipe(cssFilter)
+        .pipe(lessFilter)
+        .pipe(less())
         .pipe(concat('conkitty-panel.css'))
-        .pipe(cssFilter.restore())
+        .pipe(lessFilter.restore())
         .pipe(gulp.dest(BUILD_DIR));
 });
 

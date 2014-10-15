@@ -1,5 +1,5 @@
 frame $frame $currentFrameId $marginLeft=(18)
-    &"frame.css"
+    &"frame.less"
 
     div.b-frame:if(($frame.active), .b-frame_active[frame-id=($frame._id)]:if(($frame._id === $currentFrameId), .b-frame_chosen)):if(($frame.uri === null), .b-frame_not-found)
         div.b-frame__contents[style=('margin-left: ' + $marginLeft + 'px')]

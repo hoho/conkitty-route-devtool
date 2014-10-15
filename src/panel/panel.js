@@ -7,10 +7,14 @@
     var updatePanelTimer;
     var currentFrames;
     var currentFrameId;
+    var currentDetails;
     var newFrameId;
+    var lastExpose;
+    var framesNode;
+    var detailsNode;
 
     $C.define('template', function(item, index, arr, args) {
-        $C.tpl[args[0]].apply(this, Array.prototype.slice.call(args, 1));
+        lastExpose = $C.tpl[args[0]].apply(this, Array.prototype.slice.call(args, 1));
     });
 
     window.conkittyRoutePanelUpdate = conkittyRoutePanelUpdate;
@@ -31,14 +35,26 @@
     function conkittyRoutePanelUpdate() {
         if (updatePanelTimer) { clearTimeout(updatePanelTimer); }
 
-        chrome.devtools.inspectedWindow.eval('(' + __serializeRouter.toString() + ')()', function(frames) {
+        chrome.devtools.inspectedWindow.eval('(' + __serializeRouter.toString() + ')(' + (JSON.stringify(newFrameId)) + ')', function(frames) {
             if (frames !== undefined) {
                 if (frames) {
-                    var framesStringified = JSON.stringify(frames);
-                    if ((currentFrames !== framesStringified) || (currentFrameId !== newFrameId)) {
-                        currentFrames = framesStringified;
+                    if (!currentFrames || currentFrames === true) {
+                        $C(document.body, true).template('panel').end();
+                        framesNode = lastExpose.frames;
+                        detailsNode = lastExpose.details;
+                    }
+
+                    if ((currentFrames !== frames) || (currentFrameId !== newFrameId)) {
+                        currentFrames = frames;
                         currentFrameId = newFrameId;
-                        $C(document.body, true).template('panel', frames, currentFrameId).end();
+
+                        $C(framesNode, true).template('frames', JSON.parse(frames), currentFrameId).end();
+
+                        var tmpJSON = JSON.stringify(lastExpose || null);
+                        if (tmpJSON !== currentDetails) {
+                            currentDetails = tmpJSON;
+                            $C(detailsNode, true).template('details', lastExpose).end();
+                        }
                     }
                 } else {
                     if (currentFrames !== true) {
@@ -69,18 +85,16 @@
     }
 
 
-    function __serializeRouter() {
+    function __serializeRouter(currentFrameId) {
         // This function will run in the context of the inspectedWindow and
         // should return JSON serializable structure.
         if (window.$CR) {
             if ($CR._debug) {
                 var ret = [];
-
                 serializeFrames($CR._debug.f, ret);
-
-                return ret;
+                return JSON.stringify(ret);
             } else {
-                return null;
+                return JSON.stringify(null);
             }
         }
 
@@ -93,10 +107,10 @@
             for (i = 0; i < frames.length; i++) {
                 frame = frames[i];
 
-                if (frame._dataError) {
-                    status = 'error';
-                } else if (frame._data && (typeof frame._data.reject === 'function')) {
+                if (frame._data && (typeof frame._data.reject === 'function')) {
                     status = 'loading';
+                } else if (frame._dataError) {
+                    status = 'error';
                 } else if (frame._data !== undefined) {
                     status = 'ok';
                 } else {
@@ -109,8 +123,6 @@
                     uri: frame.uri,
                     title: frame.title,
                     active: frame.active() ? (frame.active(true) ? 2 : 1) : 0,
-                    params: frame.params(),
-                    data: frame.data(),
                     break: frame.break,
                     keep: frame.keep,
                     wait: frame.wait,
@@ -118,10 +130,31 @@
                     status: status,
                     children: []
                 };
+
+                if (currentFrameId === frame._id) {
+                    f.params = frame.params();
+                    f.data = frame.data();
+                    f.dataSource = frame.dataSource instanceof Array ?
+                        frame.dataSource.map(dataSourceType)
+                        :
+                        (frame.dataSource !== undefined ? {type: 'uri', value: frame.dataSource} : undefined);
+                }
+
                 ret.push(f);
 
                 serializeFrames(frame.children, f.children);
             }
+        }
+
+        function dataSourceType(item) {
+            var type = item && (typeof item.then === 'function') ?
+                'Promise'
+                :
+                (typeof item === 'function' ?
+                    'Function'
+                    :
+                    (typeof item === 'string' ? 'uri' : 'Object'));
+            return type === 'uri' ? {type: type, value: item + ''} : {type: type};
         }
     }
 })();

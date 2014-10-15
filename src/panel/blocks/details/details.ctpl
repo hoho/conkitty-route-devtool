@@ -1,25 +1,106 @@
 details $frame
-    &"details.css"
+    &"details.less"
 
-    div.b-details
-        CHOOSE
-            WHEN $frame
-                CALL details__details $frame
-            OTHERWISE
-                CALL nothing message="Choose active frame for the details"
+    CHOOSE
+        WHEN $frame
+            CALL details__details $frame
+        OTHERWISE
+            CALL nothing message="Click active frame for details"
 
 
 details__details $frame
-    div.b-details__details
-        h3
-            "Parameters"
-        div.b-details__params
-            (JSON.stringify($frame.params, undefined, 4))
-        h3
-            "Data"
-        div.b-details__data
-            (JSON.stringify($frame.data, undefined, 4))
-        h3
-            "DOM"
-        div.b-details__dom
+    SET $dom
+        TEST (Object.keys($frame.params).length)
+            h3
+                "Parameters"
+            div.b-details__data
+                CALL details__json ($frame.params) (true)
+
+        SET $datas ($frame.dataSource instanceof Array ? $frame.data : [$frame.data])
+        SET $dataSources ($frame.dataSource ? ($frame.dataSource instanceof Array ? $frame.dataSource : [$frame.dataSource]) : [])
+        TEST ($dataSources.length)
+            h3
+                "Data"
+            div.b-details__data
+                CHOOSE
+                    WHEN $datas
+                        EACH $index $item $dataSources
+                            div
+                                input[type="checkbox"][id=('b-details__data' + $index)]
+                                label[for=('b-details__data' + $index)]
+                                    ($item.type === 'uri' ? $item.value : $item.type)
+                                div.b-details__data-content
+                                    CHOOSE
+                                        WHEN ($datas[$index] === null)
+                                            div.b-details__error
+                                                "Error"
+                                        OTHERWISE
+                                            CALL details__json ($datas[$index]) (false) (true)
+                    OTHERWISE
+                        div.b-details__waiting
+                            "Waiting..."
+        //h3
+        //    "DOM"
+        //div.b-details__dom
             //(JSON.stringify($frame.params, undefined, 4))
+
+    CHOOSE
+        WHEN $dom
+            div.b-details__details
+                ((($dom)))
+        OTHERWISE
+            CALL nothing message="Frame has no details to show"
+
+
+details__json $object $noOpener $justOpener
+    SET $typeof (typeof $object)
+    CHOOSE
+        WHEN ($typeof === 'string')
+            div.b-details__type-string.b-details__data-content
+                (JSON.stringify($object))
+        WHEN ($typeof === 'number')
+            div.b-details__type-number.b-details__data-content
+                (JSON.stringify($object))
+        WHEN ($typeof === 'boolean')
+            div.b-details__type-boolean.b-details__data-content
+                (JSON.stringify($object))
+        WHEN ($object === null)
+            div.b-details__type-null.b-details__data-content
+                (JSON.stringify($object))
+        WHEN ($typeof === 'object')
+            TEST (!$noOpener || $justOpener)
+                SET $id ('b-details__data' + Math.random())
+                input[type="checkbox"][id=$id]
+                label[for=$id]
+                    ($object instanceof Array ? 'Array (' + $object.length + ')': 'Object')
+
+                    JS
+                        if ($justOpener) {
+                            this.hasContentObject = true;
+                            var handler = function() {
+                                if (this.hasContentObject) {
+                                    this.addEventListener('click', handler);
+                                    var subObject = $C.tpl.details__json.call(this.parentNode, $object, true);
+                                    this.hasContentObject = false;
+                                }
+                            };
+                            this.addEventListener('click', handler);
+                        }
+            TEST (!$justOpener)
+                div.b-details__data-content
+                    EACH $key $val $object
+                        SET $primitive (typeof $val !== 'object' || $val === null || !Object.keys($val).length)
+                        dl.b-details__value:if($primitive, .b-details__value_primitive)
+                            dt
+                                $key
+                                ":"
+                            dd
+                                CHOOSE
+                                    WHEN ($primitive && ($val instanceof Array))
+                                        div.b-details__type-empty.b-details__data-content
+                                            "[]"
+                                    WHEN ($primitive && $val !== null && (typeof $val === 'object'))
+                                        div.b-details__type-empty.b-details__data-content
+                                            "{}"
+                                    WHEN ($primitive || $noOpener)
+                                        CALL details__json $val (false) (true)

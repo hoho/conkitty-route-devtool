@@ -1,5 +1,5 @@
 nothing $message="No Conkitty Routes"
-    &"nothing.css"
+    &"nothing.less"
     div.b-nothing
         div
             $message

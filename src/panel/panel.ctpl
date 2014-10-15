@@ -1,6 +1,8 @@
-panel $frames $currentFrameId
-    &"panel.css"
+panel
+    &"panel.less"
     &"panel.js"
 
-    CALL frames $frames $currentFrameId AS $active
-    CALL details $active
+    div.b-frames AS $frames
+    div.b-details AS $details
+
+    EXPOSE ({frames: $frames, details: $details})
