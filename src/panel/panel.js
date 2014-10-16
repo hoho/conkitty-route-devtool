@@ -22,12 +22,23 @@
 
     document.addEventListener('click', function(e) {
         var node = e.target,
-            id;
+            id = null,
+            index = null;
 
-        while (node && !((id = node.getAttribute('frame-id')))) { node = node.parentNode; }
-        if (id) {
+        while (node &&
+               (((id = node.getAttribute('frame-id')) === null)) &&
+               (((index = node.getAttribute('tag-index'))) === null))
+        {
+            node = node.parentNode;
+        }
+
+        if (id !== null) {
             newFrameId = id;
             conkittyRoutePanelUpdate();
+        }
+
+        if (index !== null) {
+            chrome.devtools.inspectedWindow.eval('(' + __inspectElement.toString() + ')(' + index + ', ' + (JSON.stringify(newFrameId)) + ')');
         }
     }, false);
 
@@ -133,11 +144,27 @@
 
                 if (currentFrameId === frame._id) {
                     f.params = frame.params();
-                    f.data = frame.data();
-                    f.dataSource = frame.dataSource instanceof Array ?
-                        frame.dataSource.map(dataSourceType)
-                        :
-                        (frame.dataSource !== undefined ? {type: 'uri', value: frame.dataSource} : undefined);
+                    f.data = frame.data(-1);
+                    f.dataSource = frame.dataSource.map(dataSourceType);
+
+                    var n = frame._n,
+                        elems = f.elems = [],
+                        j,
+                        k,
+                        nodes,
+                        e,
+                        index = 0;
+
+                    for (j in n) {
+                        nodes = n[j];
+                        if (nodes.length > 1) {
+                            e = [];
+                            for (k = 1; k < nodes.length; k++) {
+                                e.push(serializeNode(nodes[k], index++));
+                            }
+                            elems.push({parent: serializeNode(nodes[0].parentNode, index++), elems: e});
+                        }
+                    }
                 }
 
                 ret.push(f);
@@ -145,6 +172,7 @@
                 serializeFrames(frame.children, f.children);
             }
         }
+
 
         function dataSourceType(item) {
             var type = item && (typeof item.then === 'function') ?
@@ -154,7 +182,98 @@
                     'Function'
                     :
                     (typeof item === 'string' ? 'uri' : 'Object'));
+
             return type === 'uri' ? {type: type, value: item + ''} : {type: type};
+        }
+
+
+        function serializeNode(node, index) {
+            switch (node && node.nodeType) {
+                case 1: // Element.
+                    var attrs,
+                        attrsObj,
+                        nodeObj = {tag: node.tagName.toLowerCase()},
+                        i,
+                        a;
+
+                    attrs = node.attributes;
+
+                    if (attrs.length) {
+                        attrsObj = {};
+                        for (i = 0; i < attrs.length; i++) {
+                            a = attrs[i];
+                            attrsObj[a.name] = a.value;
+                        }
+                        nodeObj.attr = attrsObj;
+                    }
+
+                    nodeObj.index = index;
+                    return nodeObj;
+
+                case 3: // Text.
+                    return {text: node.textContent, index: index};
+            }
+        }
+    }
+
+
+    function __inspectElement(index, frameId) {
+        // This function will run in the context of the inspectedWindow and
+        // should return JSON serializable structure.
+        var node = findElement(findFrame($CR._debug.f));
+
+        if (node) {
+            /* global inspect */
+            inspect(node);
+        }
+
+        function findFrame(children) {
+            if (!children) { return; }
+
+            var i,
+                ret,
+                frame;
+
+            for (i = 0; i < children.length; i++) {
+                frame = children[i];
+                if (frame._id === frameId) {
+                    ret = frame;
+                } else {
+                    ret = findFrame(frame.children);
+                }
+
+                if (ret) {
+                    break;
+                }
+            }
+
+            return ret;
+        }
+
+        function findElement(frame) {
+            // An obscure way to find an element.
+            /* eslint consistent-return: 0 */
+            if (!frame) { return; }
+
+            var n = frame._n,
+                i,
+                j,
+                nodes,
+                idx = 0;
+
+            for (i in n) {
+                nodes = n[i];
+                if (nodes.length > 1) {
+                    for (j = 1; j < nodes.length; j++) {
+                        if (idx++ === index) {
+                            return nodes[j];
+                        }
+                    }
+                    if (idx++ === index) {
+                        return nodes[0].parentNode;
+                    }
+                }
+            }
         }
     }
 })();

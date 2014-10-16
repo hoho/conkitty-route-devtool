@@ -16,33 +16,39 @@ details__details $frame
             div.b-details__data
                 CALL details__json ($frame.params) (true)
 
-        SET $datas ($frame.dataSource instanceof Array ? $frame.data : [$frame.data])
-        SET $dataSources ($frame.dataSource ? ($frame.dataSource instanceof Array ? $frame.dataSource : [$frame.dataSource]) : [])
-        TEST ($dataSources.length)
+        TEST ($frame.dataSource.length)
             h3
                 "Data"
             div.b-details__data
                 CHOOSE
-                    WHEN $datas
-                        EACH $index $item $dataSources
+                    WHEN ($frame.data)
+                        EACH $index $item ($frame.dataSource)
                             div
                                 input[type="checkbox"][id=('b-details__data' + $index)]
                                 label[for=('b-details__data' + $index)]
                                     ($item.type === 'uri' ? $item.value : $item.type)
                                 div.b-details__data-content
                                     CHOOSE
-                                        WHEN ($datas[$index] === null)
+                                        WHEN ($frame.data[$index] === null)
                                             div.b-details__error
                                                 "Error"
                                         OTHERWISE
-                                            CALL details__json ($datas[$index]) (false) (true)
+                                            CALL details__json ($frame.data[$index]) (false) (true)
                     OTHERWISE
                         div.b-details__waiting
                             "Waiting..."
-        //h3
-        //    "DOM"
-        //div.b-details__dom
-            //(JSON.stringify($frame.params, undefined, 4))
+
+        TEST ($frame.elems.length)
+            h3
+                "DOM"
+            div.b-details__data
+                SET $index (0)
+                EACH $elems ($frame.elems)
+                    div.b-details__data-content
+                        CALL details__tag ($elems.parent) (true)
+                        div.b-details__data-content
+                            EACH $elem ($elems.elems)
+                                CALL details__tag $elem
 
     CHOOSE
         WHEN $dom
@@ -67,6 +73,14 @@ details__json $object $noOpener $justOpener
         WHEN ($object === null)
             div.b-details__type-null.b-details__data-content
                 (JSON.stringify($object))
+        WHEN ($typeof === 'object' && !Object.keys($object).length)
+            CHOOSE
+                WHEN ($object instanceof Array)
+                    div.b-details__type-empty.b-details__data-content
+                        "[]"
+                OTHERWISE
+                    div.b-details__type-empty.b-details__data-content
+                        "{}"
         WHEN ($typeof === 'object')
             TEST (!$noOpener || $justOpener)
                 SET $id ('b-details__data' + Math.random())
@@ -79,7 +93,7 @@ details__json $object $noOpener $justOpener
                             this.hasContentObject = true;
                             var handler = function() {
                                 if (this.hasContentObject) {
-                                    this.addEventListener('click', handler);
+                                    this.removeEventListener('click', handler);
                                     var subObject = $C.tpl.details__json.call(this.parentNode, $object, true);
                                     this.hasContentObject = false;
                                 }
@@ -95,12 +109,27 @@ details__json $object $noOpener $justOpener
                                 $key
                                 ":"
                             dd
-                                CHOOSE
-                                    WHEN ($primitive && ($val instanceof Array))
-                                        div.b-details__type-empty.b-details__data-content
-                                            "[]"
-                                    WHEN ($primitive && $val !== null && (typeof $val === 'object'))
-                                        div.b-details__type-empty.b-details__data-content
-                                            "{}"
-                                    WHEN ($primitive || $noOpener)
-                                        CALL details__json $val (false) (true)
+                                TEST ($primitive || $noOpener)
+                                    CALL details__json $val (false) (true)
+
+
+details__tag $elem $parent
+    CHOOSE
+        WHEN (typeof $elem.text === 'string')
+            div.b-details__tag.b-details__type-string[tag-index=($elem.index)]
+                (JSON.stringify($elem.text))
+        OTHERWISE
+            div.b-details__tag[tag-index=($elem.index)]:if($parent, .b-details__tag-parent)
+                span.b-details__tag-name
+                    "<"
+                    ($elem.tag)
+                    TEST ($elem.attr)
+                        EACH $name $val ($elem.attr)
+                            " "
+                            span.b-details__attr-name
+                                $name
+                                '="'
+                                span.b-details__attr-value
+                                    $val
+                                '"'
+                    ">"
