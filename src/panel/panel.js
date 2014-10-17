@@ -70,12 +70,16 @@
                 } else {
                     if (currentFrames !== true) {
                         currentFrames = true;
+                        currentFrameId = newFrameId = undefined;
+                        tmpJSON = null;
                         $C(document.body, true).template('nothing', 'Conkitty Route is not running').end();
                     }
                 }
             } else {
                 if (currentFrames !== false) {
                     currentFrames = false;
+                    currentFrameId = newFrameId = undefined;
+                    tmpJSON = null;
                     $C(document.body, true).template('nothing').end();
                 }
             }

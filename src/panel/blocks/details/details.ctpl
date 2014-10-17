@@ -5,7 +5,7 @@ details $frame
         WHEN $frame
             CALL details__details $frame
         OTHERWISE
-            CALL nothing message="Click active frame for details"
+            CALL nothing message="Click an active frame for the details"
 
 
 details__details $frame
