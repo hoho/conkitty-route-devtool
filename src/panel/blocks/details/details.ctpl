@@ -29,7 +29,7 @@ details__details $frame
                                     ($item.type === 'uri' ? $item.value : $item.type)
                                 div.b-details__data-content
                                     CHOOSE
-                                        WHEN ($frame.data[$index] === null)
+                                        WHEN ($frame.data[$index] === null && $frame.error)
                                             div.b-details__error
                                                 "Error"
                                         OTHERWISE

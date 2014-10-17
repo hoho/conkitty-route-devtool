@@ -143,6 +143,7 @@
                     wait: frame.wait,
                     final: frame.final,
                     status: status,
+                    error: frame._dataError,
                     children: []
                 };
 
