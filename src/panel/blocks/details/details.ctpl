@@ -86,7 +86,7 @@ details__json $object $noOpener $justOpener
                 SET $id ('b-details__data' + Math.random())
                 input[type="checkbox"][id=$id]
                 label[for=$id]
-                    ($object instanceof Array ? 'Array (' + $object.length + ')': 'Object')
+                    ($object instanceof Array ? 'Array(' + $object.length + ')': 'Object')
 
                     JS
                         if ($justOpener) {
