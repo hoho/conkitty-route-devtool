@@ -37,6 +37,15 @@ gulp.task('eslint', function() {
 });
 
 
+gulp.task('assert-version', function(err) {
+    var assertVersion = require('assert-version');
+
+    err(assertVersion({
+        'src/manifest.json': ''
+    }));
+});
+
+
 gulp.task('panel', function() {
     var lessFilter = filter('**/*.less');
     var jsFilter = filter('**/*.js');
@@ -74,4 +83,4 @@ gulp.task('watch', ['default'], function() {
 });
 
 
-gulp.task('default', ['eslint', 'panel', 'static']);
+gulp.task('default', ['eslint', 'assert-version', 'panel', 'static']);
