@@ -122,7 +122,7 @@
             for (i = 0; i < frames.length; i++) {
                 frame = frames[i];
 
-                if (frame._data && (typeof frame._data.reject === 'function')) {
+                if (frame._l) {
                     status = 'loading';
                 } else if (frame._dataError) {
                     status = 'error';
