@@ -26,6 +26,7 @@
             index = null;
 
         while (node &&
+               node.getAttribute &&
                (((id = node.getAttribute('frame-id')) === null)) &&
                (((index = node.getAttribute('tag-index'))) === null))
         {

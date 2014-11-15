@@ -10,7 +10,7 @@ details $frame
 
 details__details $frame
     SET $dom
-        TEST (Object.keys($frame.params).length)
+        TEST (Object.keys($frame.params || {}).length)
             h3
                 "Parameters"
             div.b-details__data
