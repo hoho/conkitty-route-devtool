@@ -101,14 +101,14 @@
     }
 
 
-    function __serializeRouter(currentFrameId) {
+    function __serializeRouter(curFrameId) {
         // This function will run in the context of the inspectedWindow and
         // should return JSON serializable structure.
         if (window.$CR) {
             if ($CR._debug) {
-                var ret = [];
-                serializeFrames($CR._debug.f, ret);
-                return JSON.stringify(ret);
+                var data = [];
+                serializeFrames($CR._debug.f, data);
+                return JSON.stringify(data);
             } else {
                 return JSON.stringify(null);
             }
@@ -148,7 +148,7 @@
                     children: []
                 };
 
-                if (currentFrameId === frame._id) {
+                if (curFrameId === frame._id) {
                     f.params = frame.params();
                     f.data = frame.data(-1);
                     f.dataSource = frame.dataSource.map(dataSourceType);
