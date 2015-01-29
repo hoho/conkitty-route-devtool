@@ -1,6 +1,6 @@
 {
     "name": "Developer Tools Plugin for Conkitty Route",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "Debug routing tree of Conkitty Route",
     "devtools_page": "conkitty-route.html",
     "manifest_version": 2,
